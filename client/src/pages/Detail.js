@@ -5,20 +5,63 @@ import { useQuery } from '@apollo/react-hooks';
 import { QUERY_PRODUCTS } from "../utils/queries";
 import spinner from '../assets/spinner.gif'
 
+// import our global state hook and action
+import { useStoreContext } from "../utils/GlobalState";
+import { UPDATE_PRODUCTS } from "../utils/actions";
+
 function Detail() {
+  // the old way
+  // const { id } = useParams();
+
+  // const [currentProduct, setCurrentProduct] = useState({})
+
+  // const { loading, data } = useQuery(QUERY_PRODUCTS);
+
+  // const products = data?.products || [];
+
+  // useEffect(() => {
+  //   if (products.length) {
+  //     setCurrentProduct(products.find(product => product._id === id));
+  //   }
+  // }, [products, id]);
+
+  // the global state way with regular state
+  // for this detail component only because we need to handle both
+
+  // immediately execute the useStoreContext() function to retrieve the current global state object
+  // and the dipatch() method to update state
+  const [state, dispatch] = useStoreContext();
+  // use react router hook to get the id from the products for the detail component
   const { id } = useParams();
-
+  // detail views of the product are not beneficial to be saved to the global state
+  // since it will be viewed at a specific moment
+  // so we use useState
   const [currentProduct, setCurrentProduct] = useState({})
-
+  // query the database for data
   const { loading, data } = useQuery(QUERY_PRODUCTS);
+  // destructure products from the state object
+  const { products } = state;
 
-  const products = data?.products || [];
-
+  // implement the useEffect() Hook in order to wait for our useQuery() response to come in
   useEffect(() => {
+    // checks if there's data in our global state's products array
     if (products.length) {
+      // use the useState locally stored version
+      // figure out which product is the current one that we want to display
+      // It does this finding the one with the matching _id value that we grabbed from the useParams() Hook
       setCurrentProduct(products.find(product => product._id === id));
+
+      // if no data exists in the global state,
+      // use the product data from the useQuery() Hook to set the product data to the global state object
+    } else if (data) {
+      dispatch({
+        type: UPDATE_PRODUCTS,
+        products: data.products
+      });
     }
-  }, [products, id]);
+    // second argument of the useEffect hook contains a dependency array
+    // hook needs these dependencies to run
+  }, [products, data, dispatch, id]);
 
   return (
     <>
