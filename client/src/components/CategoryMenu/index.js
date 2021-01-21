@@ -5,6 +5,8 @@ import { QUERY_CATEGORIES } from "../../utils/queries";
 import { useStoreContext } from "../../utils/GlobalState";
 // need to use these actions in our dispatch() method
 import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
+// import helper
+import { idbPromise } from '../../utils/helpers';
 
 // the old method sent the setCategory prop through the function
 // function CategoryMenu({ setCategory }) {
@@ -20,8 +22,9 @@ function CategoryMenu() {
   // we only need the categories array out of our global state, we simply destructure it out
   const { categories } = state;
   
-  // query our category data for eventual storage into the global state object, 
-  const { data: categoryData } = useQuery(QUERY_CATEGORIES);
+  // query our category data for eventual storage into the global state object
+  // destructure loading and data
+  const { loading, data: categoryData } = useQuery(QUERY_CATEGORIES);
 
   // take the categoryData that returns from the useQuery() Hook and use the dispatch() method to set our global state
   // use the React useEffect() Hook to handle the dispatch of data returned from an async function
@@ -35,8 +38,23 @@ function CategoryMenu() {
         type: UPDATE_CATEGORIES,
         categories: categoryData.categories
       });
+
+      // put the data into the categories store
+      categoryData.categories.forEach(category => {
+        idbPromise('categories', 'put', category);
+      });
+    
+    // if loading does not occur because user is offline
+    } else if (!loading) {
+      // get the category data from IndexedDB
+      idbPromise('categories', 'get').then(categories => {
+        dispatch({
+          type: UPDATE_CATEGORIES,
+          categories: categories
+        });
+      });
     }
-  }, [categoryData, dispatch]);
+  }, [categoryData, loading, dispatch]);
 
   // create a new function for the click handler to use the global state instead of the function we receive as a prop
   const handleClick = id => {

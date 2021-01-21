@@ -5,6 +5,8 @@ import { useQuery } from '@apollo/react-hooks';
 import { QUERY_PRODUCTS } from "../utils/queries";
 import spinner from '../assets/spinner.gif'
 
+import { idbPromise } from "../utils/helpers";
+
 // import our global state hook and action
 import { useStoreContext } from "../utils/GlobalState";
 import {
@@ -64,12 +66,25 @@ function Detail() {
         _id: id,
         purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
       });
+
+      // when we use global state, we will update IndexedDB as well
+      // if we're updating quantity, use existing item data and increment purchaseQuantity value by one
+      idbPromise('cart', 'put', {
+        ...itemInCart,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+
       // if no match, then add the product
     } else {
       dispatch({
         type: ADD_TO_CART,
         product: { ...currentProduct, purchaseQuantity: 1 }
       });
+
+      // when we use global state, we will update IndexedDB as well
+      // if product isn't in the cart yet, add it to the current shopping cart in IndexedDB
+      idbPromise('cart', 'put', { ...currentProduct, purchaseQuantity: 1 });
+
     }
   };
 
@@ -78,8 +93,14 @@ function Detail() {
       type: REMOVE_FROM_CART,
       _id: currentProduct._id
     });
+
+    // when we use global state, we will update IndexedDB as well
+    // upon removal from cart, delete the item from IndexedDB using the `currentProduct._id` to locate what to remove
+    idbPromise('cart', 'delete', { ...currentProduct });
+
   };
 
+  // check if we have data returning from a global state and stored in products
   // implement the useEffect() Hook in order to wait for our useQuery() response to come in
   useEffect(() => {
     // checks if there's data in our global state's products array
@@ -96,10 +117,28 @@ function Detail() {
         type: UPDATE_PRODUCTS,
         products: data.products
       });
+
+      // place retrieved data into IndexedDB
+      // functionality also required here in case a user goes directly into a detail product view rather than the homepage
+      data.products.forEach((product) => {
+        idbPromise('products', 'put', product);
+      });
     }
+
+    // if no data because user is offline
+    // get cache from idb
+    else if (!loading) {
+      idbPromise('products', 'get').then((indexedProducts) => {
+        dispatch({
+          type: UPDATE_PRODUCTS,
+          products: indexedProducts
+        });
+      });
+    }
+
     // second argument of the useEffect hook contains a dependency array
     // hook needs these dependencies to run
-  }, [products, data, dispatch, id]);
+  }, [products, data, loading, dispatch, id]);
 
   return (
     <>
