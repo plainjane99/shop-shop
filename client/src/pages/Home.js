@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import ProductList from "../components/ProductList";
 import CategoryMenu from "../components/CategoryMenu";
+// bring in the cart for use
+import Cart from '../components/Cart';
 
 // Home page component manages the state currentCategory
 // const Home = () => {
@@ -25,6 +27,7 @@ const Home = () => {
     <div className="container">
       <CategoryMenu />
       <ProductList />
+      <Cart />
     </div>
   );
 };

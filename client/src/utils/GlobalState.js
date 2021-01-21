@@ -16,6 +16,8 @@ const { Provider } = StoreContext;
 // set up StoreProvider function to accept props
 // value prop is included to pass in more data for state as needed (which it's not in this application)
 const StoreProvider = ({ value = [], ...props }) => {
+
+    // -------------------this defines the initial state ---------------------------------------
     // instantiate our initial global state with the useProductReducer() function
     // the useProductReducer() function wraps around useReducer() hook (see reducers.js file) 
     // which returns the state and dispatch parameters
@@ -23,6 +25,8 @@ const StoreProvider = ({ value = [], ...props }) => {
     // dispatch is the method we execute to update our state
     const [state, dispatch] = useProductReducer({
         products: [],
+        cart: [],
+        cartOpen: false,
         categories: [],
         currentCategory: '',
     });

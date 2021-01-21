@@ -7,7 +7,15 @@ import spinner from '../assets/spinner.gif'
 
 // import our global state hook and action
 import { useStoreContext } from "../utils/GlobalState";
-import { UPDATE_PRODUCTS } from "../utils/actions";
+import {
+  REMOVE_FROM_CART,
+  UPDATE_CART_QUANTITY,
+  ADD_TO_CART,
+  UPDATE_PRODUCTS
+} from "../utils/actions";
+
+// bring in the cart for use
+import Cart from '../components/Cart';
 
 function Detail() {
   // the old way
@@ -39,8 +47,38 @@ function Detail() {
   const [currentProduct, setCurrentProduct] = useState({})
   // query the database for data
   const { loading, data } = useQuery(QUERY_PRODUCTS);
-  // destructure products from the state object
-  const { products } = state;
+  // destructure products and cart from the state object
+  const { products, cart } = state;
+
+  // function determine if quantity should be updated or if product should be displayed
+  const addToCart = () => {
+
+    // check if the selected item is already in the cart
+    // find the cart item with the matching id
+    const itemInCart = cart.find((cartItem) => cartItem._id === id);
+
+    // if there was a match, call UPDATE with a new purchase quantity
+    if (itemInCart) {
+      dispatch({
+        type: UPDATE_CART_QUANTITY,
+        _id: id,
+        purchaseQuantity: parseInt(itemInCart.purchaseQuantity) + 1
+      });
+      // if no match, then add the product
+    } else {
+      dispatch({
+        type: ADD_TO_CART,
+        product: { ...currentProduct, purchaseQuantity: 1 }
+      });
+    }
+  };
+
+  const removeFromCart = () => {
+    dispatch({
+      type: REMOVE_FROM_CART,
+      _id: currentProduct._id
+    });
+  };
 
   // implement the useEffect() Hook in order to wait for our useQuery() response to come in
   useEffect(() => {
@@ -81,10 +119,13 @@ function Detail() {
             <strong>Price:</strong>
             ${currentProduct.price}
             {" "}
-            <button>
+            <button onClick={addToCart}>
               Add to Cart
             </button>
-            <button>
+            <button 
+              disabled={!cart.find(p => p._id === currentProduct._id)} 
+              onClick={removeFromCart}
+            >
               Remove from Cart
             </button>
           </p>
@@ -98,6 +139,9 @@ function Detail() {
       {
         loading ? <img src={spinner} alt="loading" /> : null
       }
+
+      <Cart />
+
     </>
   );
 };
