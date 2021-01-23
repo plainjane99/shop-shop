@@ -15,24 +15,40 @@ import { TOGGLE_CART, ADD_MULTIPLE_TO_CART } from "../../utils/actions";
 // import helper to use IndexedDB
 import { idbPromise } from "../../utils/helpers";
 
+// import necessary modules for checkout/stripe
+import { QUERY_CHECKOUT } from '../../utils/queries';
+import { loadStripe } from '@stripe/stripe-js';
+
+// import hook that executes when called
+// useQuery hook runs when a component is first rendered so cannot be used with a click handler 
+import { useLazyQuery } from '@apollo/react-hooks';
+
+// declare a variable to hold the API key for use with React front-end
+// this holds an object and will be used to perform the checkout redirect
+const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
+
 const Cart = () => {
 
     // use the custom useStoreContext Hook to establish
     // a state variable and the dispatch() function to update the state
     const [state, dispatch] = useStoreContext();
 
+    // declare data variable to contain the checkout session once the query is called with 
+    // the getCheckout function
+    const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
+
     useEffect(() => {
         // create function that retrieves data from the IndexedDB cart object store
         async function getCart() {
-          const cart = await idbPromise('cart', 'get');
-          dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });
+            const cart = await idbPromise('cart', 'get');
+            dispatch({ type: ADD_MULTIPLE_TO_CART, products: [...cart] });
         };
 
         // run the function
         // check if there's anything in the state's cart property on load
         // if no data, retrieve from IndexedDB cart object store and save to global store
         if (!state.cart.length) {
-          getCart();
+            getCart();
         }
 
         // list all of the data that this useEffect() Hook is dependent on to execute
@@ -42,6 +58,17 @@ const Cart = () => {
     }, [state.cart.length, dispatch]);
 
     console.log(state);
+
+    // set up front end to pull session ID in the component for use
+    // watch for changes to data
+    // use the stripePromise object to redirect to Stripe once the data variable has data in it
+    useEffect(() => {
+        if (data) {
+            stripePromise.then((res) => {
+                res.redirectToCheckout({ sessionId: data.checkout.session });
+            });
+        }
+    }, [data]);
 
     // create a click handler toggleCart() to have dispatch() call the TOGGLE_CART action
     function toggleCart() {
@@ -55,6 +82,26 @@ const Cart = () => {
             sum += item.price * item.purchaseQuantity;
         });
         return sum.toFixed(2);
+    }
+
+    // click handler function for holding the IDs for items to be purchased
+    function submitCheckout() {
+        // declare array to hold the IDs
+        // This productIds array is what the QUERY_CHECKOUT query would need to generate the Stripe session
+        const productIds = [];
+
+        // loop over every item in the cart
+        state.cart.forEach((item) => {
+            for (let i = 0; i < item.purchaseQuantity; i++) {
+                // add their IDs to a new productIds array
+                productIds.push(item._id);
+            }
+        });
+
+        // call the query
+        getCheckout({
+            variables: { products: productIds }
+        });
     }
 
     // If cartOpen is false, the component will return a much smaller <div>. 
@@ -84,7 +131,8 @@ const Cart = () => {
                         <strong>Total: ${calculateTotal()}</strong>
                         {
                             Auth.loggedIn() ?
-                                <button>
+                                // click handler needed to capture the IDs for the items being purchased
+                                <button onClick={submitCheckout}>
                                     Checkout
                                 </button>
                                 :
@@ -93,13 +141,13 @@ const Cart = () => {
                     </div>
                 </div>
             ) : (
-                <h3>
-                    <span role="img" aria-label="shocked">
-                        😱
+                    <h3>
+                        <span role="img" aria-label="shocked">
+                            😱
                     </span>
                     You haven't added anything to your cart yet!
-                </h3>
-            )}
+                    </h3>
+                )}
         </div>
     );
 };
