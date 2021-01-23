@@ -36,8 +36,8 @@ function Success() {
 
         }
 
-        setTimeout(function(){
-            window.location.assign("/");
+        setTimeout(() => {
+            window.location.assign('/');
         }, 3000);    
 
         // call the function
@@ -51,10 +51,10 @@ function Success() {
                 <h1>Success!</h1>
                 <h2>
                     Thank you for your purchase!
-          </h2>
+                </h2>
                 <h2>
                     You will now be redirected to the homepage
-          </h2>
+                 </h2>
             </Jumbotron>
         </div>
     );

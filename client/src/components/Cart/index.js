@@ -37,6 +37,17 @@ const Cart = () => {
     // the getCheckout function
     const [getCheckout, { data }] = useLazyQuery(QUERY_CHECKOUT);
 
+    // set up front end to pull session ID in the component for use
+    // watch for changes to data
+    // use the stripePromise object to redirect to Stripe once the data variable has data in it
+    useEffect(() => {
+        if (data) {
+            stripePromise.then((res) => {
+                res.redirectToCheckout({ sessionId: data.checkout.session });
+            });
+        }
+    }, [data]);
+
     useEffect(() => {
         // create function that retrieves data from the IndexedDB cart object store
         async function getCart() {
@@ -59,16 +70,6 @@ const Cart = () => {
 
     console.log(state);
 
-    // set up front end to pull session ID in the component for use
-    // watch for changes to data
-    // use the stripePromise object to redirect to Stripe once the data variable has data in it
-    useEffect(() => {
-        if (data) {
-            stripePromise.then((res) => {
-                res.redirectToCheckout({ sessionId: data.checkout.session });
-            });
-        }
-    }, [data]);
 
     // create a click handler toggleCart() to have dispatch() call the TOGGLE_CART action
     function toggleCart() {
