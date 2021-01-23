@@ -35,13 +35,13 @@ function Success() {
             }
 
         }
-        
-        // call the function
-        saveOrder();
 
         setTimeout(function(){
             window.location.assign("/");
         }, 3000);    
+
+        // call the function
+        saveOrder();
 
     }, [addOrder]);
 
