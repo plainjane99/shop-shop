@@ -1,8 +1,14 @@
 import React, { useEffect } from "react";
 import { useQuery } from '@apollo/react-hooks';
 import { QUERY_CATEGORIES } from "../../utils/queries";
+
+// for Global State using Context API
 // import our custom global state hook
-import { useStoreContext } from "../../utils/GlobalState";
+// import { useStoreContext } from "../../utils/GlobalState";
+
+// for Global State using Redux, use React-Redux hook
+import { useSelector, useDispatch } from 'react-redux';
+
 // need to use these actions in our dispatch() method
 import { UPDATE_CATEGORIES, UPDATE_CURRENT_CATEGORY } from '../../utils/actions';
 // import helper
@@ -16,9 +22,15 @@ function CategoryMenu() {
   // const { data: categoryData } = useQuery(QUERY_CATEGORIES);
   // const categories = categoryData?.categories || [];
 
+  // Global State using Context API
   // this is how we control state with our global state object
   // call upon the useStoreContext() Hook to retrieve the current state from the global state object and the dispatch() method to update state
-  const [state, dispatch] = useStoreContext();
+  // const [state, dispatch] = useStoreContext();
+
+  // Global State using Redux
+  const state = useSelector(state => state);
+  const dispatch = useDispatch();
+
   // we only need the categories array out of our global state, we simply destructure it out
   const { categories } = state;
   

@@ -7,8 +7,13 @@ import CartItem from '../CartItem';
 import Auth from '../../utils/auth';
 import './style.css';
 
+// for Global State using Context API
 // import the global store
-import { useStoreContext } from '../../utils/GlobalState';
+// import { useStoreContext } from '../../utils/GlobalState';
+
+// for Global State using Redux, use React-Redux hook
+import { useSelector, useDispatch } from 'react-redux';
+
 // import the toggle cart action
 import { TOGGLE_CART, ADD_MULTIPLE_TO_CART } from "../../utils/actions";
 
@@ -28,10 +33,14 @@ import { useLazyQuery } from '@apollo/react-hooks';
 const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx');
 
 const Cart = () => {
-
+    // Global State using Context API
     // use the custom useStoreContext Hook to establish
     // a state variable and the dispatch() function to update the state
-    const [state, dispatch] = useStoreContext();
+    // const [state, dispatch] = useStoreContext();
+
+    // Global State using Redux
+    const state = useSelector(state => state);
+    const dispatch = useDispatch();
 
     // declare data variable to contain the checkout session once the query is called with 
     // the getCheckout function

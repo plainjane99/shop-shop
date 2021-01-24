@@ -5,8 +5,13 @@ import ProductItem from "../ProductItem";
 import { QUERY_PRODUCTS } from "../../utils/queries";
 import spinner from "../../assets/spinner.gif"
 
+// for Global State using Context API
 // import custom global state hook functionality and actions
-import { useStoreContext } from '../../utils/GlobalState';
+// import { useStoreContext } from '../../utils/GlobalState';
+
+// for Global State using Redux, use React-Redux hook
+import { useSelector, useDispatch } from 'react-redux';
+
 import { UPDATE_PRODUCTS } from '../../utils/actions';
 
 import { idbPromise } from "../../utils/helpers";
@@ -27,10 +32,16 @@ function ProductList() {
   //   return products.filter(product => product.category._id === currentCategory);
   // }
 
+  // Global State using Context API
   // this is the global state way
   // immediately execute the useStoreContext() function to retrieve the current global state object
   // and the dipatch() method to update state
-  const [state, dispatch] = useStoreContext();
+  // const [state, dispatch] = useStoreContext();
+
+  // Global State using Redux
+  const state = useSelector(state => state);
+  const dispatch = useDispatch();
+
   // destructure the currentCategory data out of the state object so we can use it in the filterProducts() function
   const { currentCategory } = state;
   // query our database for data

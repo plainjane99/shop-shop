@@ -11,8 +11,14 @@ import Signup from "./pages/Signup";
 import OrderHistory from "./pages/OrderHistory";
 import Success from "./pages/Success";
 import Nav from "./components/Nav";
+
+// for Global State using Context API
 // make our global state available to all of our components
-import { StoreProvider } from "./utils/GlobalState";
+// import { StoreProvider } from "./utils/GlobalState";
+
+// for Global State using Redux
+import { Provider } from 'react-redux';
+import store from './utils/store';
 
 const client = new ApolloClient({
   request: (operation) => {
@@ -31,7 +37,9 @@ function App() {
     <ApolloProvider client={client}>
       <Router>
         <div>
-          <StoreProvider>
+          {/* StoreProvider is for Global State using Context API only */}
+          {/* <StoreProvider> */}
+          <Provider store={store}>
             <Nav />
             <Switch>
               <Route exact path="/" component={Home} />
@@ -42,7 +50,8 @@ function App() {
               <Route exact path="/success" component={Success} />
               <Route component={NoMatch} />
             </Switch>
-          </StoreProvider>
+          </Provider>
+          {/* </StoreProvider> */}
         </div>
       </Router>
     </ApolloProvider>
