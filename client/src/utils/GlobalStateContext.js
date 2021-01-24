@@ -1,3 +1,4 @@
+// This file was used for Global State when using Context API
 // createContext will be used to create the container to hold our global state data and functionality
 // useContext is another React Hook that will allow us to use the state created from the createContext function
 import React, { createContext, useContext } from "react";

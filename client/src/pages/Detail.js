@@ -7,8 +7,13 @@ import spinner from '../assets/spinner.gif'
 
 import { idbPromise } from "../utils/helpers";
 
+// for Global State using Context API
 // import our global state hook and action
-import { useStoreContext } from "../utils/GlobalState";
+// import { useStoreContext } from "../utils/GlobalState";
+
+// for Global State using Redux, use React-Redux hook
+import { useSelector, useDispatch } from 'react-redux';
+
 import {
   REMOVE_FROM_CART,
   UPDATE_CART_QUANTITY,
@@ -38,9 +43,16 @@ function Detail() {
   // the global state way with regular state
   // for this detail component only because we need to handle both
 
+  // Global State using Context API
   // immediately execute the useStoreContext() function to retrieve the current global state object
   // and the dipatch() method to update state
-  const [state, dispatch] = useStoreContext();
+  // const [state, dispatch] = useStoreContext();
+
+  // Global State using Redux
+  const state = useSelector(state => state);
+  const dispatch = useDispatch();
+
+
   // use react router hook to get the id from the products for the detail component
   const { id } = useParams();
   // detail views of the product are not beneficial to be saved to the global state

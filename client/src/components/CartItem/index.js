@@ -1,16 +1,24 @@
 import React from 'react';
 
-import { useStoreContext } from '../../utils/GlobalState';
+// for Global State using Context API
+// import { useStoreContext } from '../../utils/GlobalState';
+
+// for Global State using Redux, use React-Redux hook
+import { useDispatch } from 'react-redux';
+
 import { REMOVE_FROM_CART, UPDATE_CART_QUANTITY } from '../../utils/actions';
 
 import { idbPromise } from "../../utils/helpers";
 
 // This component expects an item object as a prop and will use that object's properties to populate the JSX
 const CartItem = ({ item }) => {
-
+    // Global State using Context API
     // we only destructure the dispatch() function from the useStoreContext Hook, 
     // because the CartItem component has no need to read state
-    const [, dispatch] = useStoreContext();
+    // const [, dispatch] = useStoreContext();
+
+    // Global State using Redux
+    const dispatch = useDispatch();
 
     const removeFromCart = item => {
         dispatch({

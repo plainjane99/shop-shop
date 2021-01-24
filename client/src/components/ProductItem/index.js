@@ -2,8 +2,13 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { pluralize } from "../../utils/helpers";
 
+// for Global State using Context API
 // import local store
-import { useStoreContext } from '../../utils/GlobalState';
+// import { useStoreContext } from '../../utils/GlobalState';
+
+// for Global State using Redux, use React-Redux hook
+import { useSelector, useDispatch } from 'react-redux';
+
 // import actions
 import { ADD_TO_CART, UPDATE_CART_QUANTITY } from '../../utils/actions';
 
@@ -18,9 +23,14 @@ function ProductItem(item) {
     quantity
   } = item;
 
+  // Global State using Context API
   // use the custom useStoreContext Hook to establish
   // a state variable and the dispatch() function to update the state
-  const [state, dispatch] = useStoreContext();
+  // const [state, dispatch] = useStoreContext();
+
+  // Global State using Redux
+  const state = useSelector(state => state);
+  const dispatch = useDispatch();
 
   // declare cart as its own variable so that we don't have to keep writing state.cart
   const { cart } = state;
